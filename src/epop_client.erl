@@ -1,4 +1,6 @@
 -module(epop_client).
+-compile([{parse_transform, lager_transform}]).
+
 -author("Harish Mallipeddi <harish.mallipeddi@gmail.com>").
 
 %%%---------------------------------------------------------------------
@@ -101,6 +103,7 @@ do_connect_proto(S) ->
         false ->
             %% default POP3
             Opts = [{packet,raw}, {reuseaddr,true}, {active,false}],
+            lager:debug("_106:~n\t~p",[S]),
             gen_tcp:connect(S#sk.addr, S#sk.port, Opts);
         true ->
             %% handle POP3 over SSL
@@ -406,6 +409,7 @@ who(client) -> "C".
 
 init_session(User,Options) ->
     {Uid,Adr} = user_address(User),
+    lager:debug("_412:~n\t~p~n\t~p",[Uid,Adr]),
     init_options(Uid,Adr,Options).
 
 init_options(Uid,Adr,Options) ->
@@ -414,6 +418,7 @@ init_options(Uid,Adr,Options) ->
 user_address(User) ->
     case string:tokens(User,"@") of
 	List when length(List)>1 -> make_uid_address(List);
+            %% User;
 	_ -> throw({error,address_format})
     end.
 
