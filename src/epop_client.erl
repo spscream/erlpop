@@ -129,6 +129,7 @@ get_greeting(S,Passwd) ->
 answer_greeting(S,Passwd,T) when S#sk.apop==false ->
     if_snoop(S,sender,"+OK" ++ T),
     Msg = "USER " ++ S#sk.user,
+    lager:debug("_132:~n\t~p",[Msg]),
     deliver(S,Msg),
     if_snoop(S,client,Msg),
     send_passwd(S,Passwd);
@@ -411,7 +412,8 @@ who(client) -> "C".
 init_session(User,Options) ->
     {Uid,Adr} = user_address(User),
     lager:debug("_412:~n\t~p~n\t~p",[Uid,Adr]),
-    init_options(Uid,Adr,Options).
+    %% init_options(Uid,Adr,Options).
+    init_options(User,Adr,Options).
 
 init_options(Uid,Adr,Options) ->
     set_options(Options,#sk{user=Uid,addr=Adr}).
@@ -425,8 +427,12 @@ user_address(User) ->
 
 make_uid_address(L) -> make_uid_address(L, "").
 
-make_uid_address([_Uid, Adr], Uid) -> {Uid++_Uid, Adr};
-make_uid_address([_Uid|L], Uid)    -> make_uid_address(L, Uid++_Uid++"@").
+make_uid_address([_Uid, Adr], Uid) -> 
+    lager:debug("_430:~n\t~p~n\t~p~n\t~p",[Uid,_Uid,Adr]),
+    {Uid++_Uid, Adr};
+make_uid_address([_Uid|L], Uid)    -> 
+    lager:debug("_433:~n\t~p~n\t~p~n\t~p",[Uid,_Uid,L]),
+    make_uid_address(L, Uid++_Uid++"@").
     
 
 set_options([{snoop,Flag}|T],S) ->
